@@ -1,7 +1,9 @@
-#TODO animations
+#TODO RAT GAMBLING AND SHOP 2 W/ WEAPON SWAPPING
 import pygame
 import random as rand
 import sys
+
+import pygame.examples
 # THIS GAME REQUIRES THE IMAGE FILES TO RUN
 
 
@@ -48,10 +50,6 @@ battle_background = pygame.Surface((screenwidth, screenheight))
 battle_background = pygame.image.load("img/battle_background.png").convert_alpha()
 battle_background = pygame.transform.scale(battle_background, (screenwidth, screenheight))
 
-# Explore Background
-explore_background = pygame.Surface((screenwidth, screenheight))
-explore_background = pygame.image.load("img/explore_background.png").convert_alpha()
-explore_background = pygame.transform.scale(explore_background, (screenwidth, screenheight))
 
 # Defeat
 defeat = pygame.Surface((screenwidth, screenheight))
@@ -64,6 +62,10 @@ camp = pygame.Surface((screenwidth, screenheight))
 camp = pygame.image.load("img/Camp.png").convert_alpha()
 camp = pygame.transform.scale(camp, (screenwidth, screenheight))
 
+# Explore Background
+explore_background = pygame.Surface((screenwidth, screenheight))
+explore_background = pygame.image.load("img/explore_background.png").convert_alpha()
+explore_background = pygame.transform.scale(explore_background, (screenwidth, screenheight))
 
 # Player image
 jimmy_battle = pygame.Surface((screenwidth, screenheight))
@@ -134,8 +136,50 @@ fps = 60
 shop_stock = ["HP_CRYSTAL", "ATK_CRYSTAL", "HP_POTION"]
 shop_prices = [hpc, atk, hpp]
 inventory = []
+
+thousand = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+hundred = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+ten = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+one = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+Value_Bet = int(f"{thousand[0]}{hundred[0]}{ten[0]}{one[0]}")
 puzzle = False
 event_active = False
+
+# Update Value_Bet
+def update_value_bet():
+    global Value_Bet
+    Value_Bet = int(f"{thousand[0]}{hundred[0]}{ten[0]}{one[0]}")
+# Cycle through Numbers
+def cycle_numbers(digit, direction):
+    if direction == "up":
+        if digit == "thousand":
+            cyclenum = thousand.pop(0)
+            thousand.append(cyclenum)
+        elif digit == "hundred":
+            cyclenum = hundred.pop(0)
+            hundred.append(cyclenum)
+        elif digit == "ten":
+            cyclenum = ten.pop(0)
+            ten.append(cyclenum)
+        elif digit == "one":
+            cyclenum = one.pop(0)
+            one.append(cyclenum)
+    if direction == "down":
+        if digit == "thousand":
+            cyclenum = thousand.pop()
+            thousand.insert(0, cyclenum)
+        elif digit == "hundred":
+            cyclenum = hundred.pop()
+            hundred.insert(0, cyclenum)
+        elif digit == "ten":
+            cyclenum = ten.pop()
+            ten.insert(0, cyclenum)
+        elif digit == "one":
+            cyclenum = one.pop()
+            one.insert(0, cyclenum)
+
+    update_value_bet()
+
 # Fuction for random events
 def random_event(last_event):
     available_events = [0,1,2]
@@ -281,21 +325,25 @@ class Player(pygame.sprite.Sprite):
                     self.image = self.current_frames[self.frame_index]
             else:
                 self.image = self.current_frames[0]  # Idle frame when not moving
-            print(dx, dy)
+
+
             # Update position
             self.rect.x += dx
             self.rect.y += dy
 
             #transitions
             if self.rect.right >= screenwidth:
-                self.rect.right = 0 + self.rect.width
+                self.rect.right = 0
+
             #Boundaries
-            if self.rect.top < screenheight/3:
-                self.rect.top = screenheight/3
-            if self.rect.bottom > screenheight:
-                self.rect.bottom = screenheight
+            if self.rect.top < screenheight//3:
+                self.rect.top = screenheight//3
+
             if self.rect.left < 0:
                 self.rect.left = 0
+
+            if self.rect.bottom > screenheight:
+                self.rect.bottom = screenheight
             return battle
     
     def attack(self, target):
@@ -346,6 +394,7 @@ def game():
     shop = False
     shop2 = False
     gamba = False
+    explore = False
     citymenu = False
     cityname_flag = False
     cityname_flag2 = False
@@ -450,7 +499,7 @@ def game():
     city_b_overlay.fill("black")
 
     # City Text
-    cityname_text = font.render("B'yeah town", True, "White")
+    cityname_text = font.render("yuhhhhh town", True, "White")
     cityname_text.set_alpha(0)
 
     embark_text = font.render("Embark", True, "white")
@@ -506,11 +555,43 @@ def game():
     shop2_image = pygame.transform.scale(shop2_image, (125, 125))
     shop2_rect = shop2_image.get_rect(center=(1050, 500))
 
-    # GAMBA ======================================================================================
+    exitshop2_rect = exit_image.get_rect(center=(screenwidth - (exit_image.get_width() // 2), 0 + (exit_image.get_height() // 2)))
+                                         
+
+    # gamba ======================================================================================
 
     gamba_image = pygame.image.load("img/indicator.png").convert_alpha()
     gamba_image = pygame.transform.scale(gamba_image, (125, 125))
-    gamba_rect = gamba_image.get_rect(center=(810, 550))
+    gamba_rect = gamba_image.get_rect(center=(790, 500))
+
+    up_arrow = pygame.image.load("img/up_arrow.png").convert_alpha()
+    up_arrow = pygame.transform.scale(up_arrow, (50, 50))
+    down_arrow = pygame.image.load("img/down_arrow.png").convert_alpha()
+    down_arrow = pygame.transform.scale(down_arrow, (50, 50))
+    
+    arrow_x = 810
+    arrow_y = 500
+
+    THOUSANDup = up_arrow.get_rect(center=(arrow_x, arrow_y))
+    THOUSANDdown = down_arrow.get_rect(center=(arrow_x, arrow_y + 100))
+    HUNDREDup = up_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*1), arrow_y))
+    HUNDREDdown = down_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*1), arrow_y + 100))
+    TENup = up_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*2), arrow_y))
+    TENdown = down_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*2), arrow_y + 100))
+    ONEup = up_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*3), arrow_y))
+    ONEdown = down_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*3), arrow_y + 100))
+
+    Value_layer = pygame.Surface((up_arrow.get_width()*4, 50))
+    Value_layer.set_alpha(255)
+    Value_layer.fill("black")
+    Value_text = font.render(str(Value_Bet), True, "white")
+
+    bet_image = pygame.image.load("img/exit_button2.png").convert_alpha()
+    bet_image = pygame.transform.scale(bet_image, (150, 75))
+    bet_rect = bet_image.get_rect(center=(arrow_x + (up_arrow.get_width()*4) + 50, arrow_y + 50))
+
+    exitgamba_rect = exit_image.get_rect(center=(screenwidth - (exit_image.get_width() // 2), 0 + (exit_image.get_height() // 2)))
+
 
 
     # Create Instances =========================================================================
@@ -603,12 +684,21 @@ def game():
                     shop2_image = pygame.image.load("img/indicator.png").convert_alpha()
                     shop2_image = pygame.transform.scale(shop2_image, (100, 100))
                     shop2_image.set_alpha(0)
+                if gamba_rect.collidepoint(pygame.mouse.get_pos()):
+                    gamba_image = pygame.image.load("img/indicator.png").convert_alpha()
+                    gamba_image = pygame.transform.scale(gamba_image, (100, 100))
+                    gamba_image.set_alpha(100)
+                else:
+                    gamba_image = pygame.image.load("img/indicator.png").convert_alpha()
+                    gamba_image = pygame.transform.scale(gamba_image, (100, 100))
+                    gamba_image.set_alpha(0)
                     
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    if embark_rect.collidepoint(event.pos):  # Check if mouse click is on the "Quit" button
+                    if embark_rect.collidepoint(event.pos):
                         for player in all_sprites:
                             player.rect.y = screenheight // 2
                             player.rect.x = screenwidth // 4
+                        explore = True
                         city = not city
                     if inventory_rect.collidepoint(event.pos):
                         inventory_menu = True
@@ -627,6 +717,12 @@ def game():
                         # set flags
                         shop2 = True
                         city = False
+                    if gamba_rect.collidepoint(event.pos):
+                        city = False
+                        gamba = True
+
+                    
+
             elif inventory_menu:
                 if exitinv_rect.collidepoint(pygame.mouse.get_pos()):
                     exit_image = pygame.image.load("img/Exit_button2.png").convert_alpha()
@@ -699,6 +795,51 @@ def game():
                                 hpp_price_text = shop_font.render(("Health Potion: $" + str(hpp)), True, "White")
                                 print(str(hpp), "HPP")
                                 print(player.money)
+            elif shop2:
+                if shop_timer > 0:
+                    pass
+                else:
+                    if exitshop2_rect.collidepoint(pygame.mouse.get_pos()):
+                        exit_image = pygame.image.load("img/Exit_button2.png").convert_alpha()
+                        exit_image = pygame.transform.scale(exit_image, (64, 64))
+                    else:
+                        exit_image = pygame.image.load("img/Exit_button.png").convert_alpha()
+                        exit_image = pygame.transform.scale(exit_image, (64, 64))
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        if exitshop2_rect.collidepoint(event.pos):
+                            shop2 = False
+                            city = True
+            elif gamba:
+                if exitgamba_rect.collidepoint(pygame.mouse.get_pos()):
+                    exit_image = pygame.image.load("img/Exit_button2.png").convert_alpha()
+                    exit_image = pygame.transform.scale(exit_image, (64, 64))
+                else:
+                    exit_image = pygame.image.load("img/Exit_button.png").convert_alpha()
+                    exit_image = pygame.transform.scale(exit_image, (64, 64))
+                
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if exitgamba_rect.collidepoint(event.pos):
+                        gamba = False
+                        city = True
+                    # add the value bet
+                    if THOUSANDup.collidepoint(event.pos):
+                        cycle_numbers("thousand", "up")
+                    if THOUSANDdown.collidepoint(event.pos):
+                        cycle_numbers("thousand", "down")
+                    if HUNDREDup.collidepoint(event.pos):
+                        cycle_numbers("hundred", "up")
+                    if HUNDREDdown.collidepoint(event.pos):
+                        cycle_numbers("hundred", "down")
+                    if TENup.collidepoint(event.pos):
+                        cycle_numbers("ten", "up")
+                    if TENdown.collidepoint(event.pos):
+                        cycle_numbers("ten", "down")
+                    if ONEup.collidepoint(event.pos):
+                        cycle_numbers("one", "up")
+                    if ONEdown.collidepoint(event.pos):
+                        cycle_numbers("one", "down")
+
+
                             
         # Decrement the shop timer if it's active
         if shop_timer > 0:
@@ -815,7 +956,7 @@ def game():
                 last_event = None
        
         if event_active == False:
-            if not paused or city or menu or shop or shop2 or battle:
+            if explore:
                 battle = player.update(keys, battle)
         else:
             if battle == False and puzzle == False:
@@ -826,11 +967,11 @@ def game():
         # Get pressed keys
         keys = pygame.key.get_pressed()  
         # Update player
-        if not paused or city or menu or shop or shop2 or battle or inventory_menu:
+        if explore:
             battle = player.update(keys, battle)
         if menu and not paused:
             # Draw the menu
-            screen_game.blit(shopbackground_image, (0, 0))
+            screen_game.blit(camp, (0, 0))
             all_sprites.draw(screen_game)
             screen_game.blit(menu_overlay, (0, 0))
 
@@ -848,7 +989,7 @@ def game():
             continue
         if paused and not menu:
             # Draw the game screen
-            screen_game.blit(shopbackground_image, (0, 0))
+            screen_game.blit(explore_background, (0, 0))
             all_sprites.draw(screen_game)
 
 
@@ -870,7 +1011,7 @@ def game():
             clock.tick(60)
             continue  # Skip the rest of the loop while paused
        
-        if not city and not shop and not battle and not inventory_menu and not shop2:
+        if explore:
             screen_game.blit(explore_background, (0, 0))
             all_sprites.draw(screen_game)
            
@@ -911,6 +1052,7 @@ def game():
                     pygame.time.delay(5)
                 screen_game.blit(shop_image, shop_rect)
                 screen_game.blit(shop2_image, shop2_rect)
+                screen_game.blit(gamba_image, gamba_rect)
                 # pop up menu
                 if citymenu:
                     if animationupdate == 0:
@@ -955,8 +1097,7 @@ def game():
             clock.tick(60)
             continue
 
-
-
+  
         if shop:
             screen_game.blit(shopbackground_image, (0,0))
             screen_game.blit(shop_keeper, (screenwidth - shop_keeper.get_width(), screenheight - (shop_keeper.get_height() + 75)))
@@ -975,15 +1116,39 @@ def game():
         
         if shop2:
             screen_game.blit(shopbackground_image, (0,0))
+            screen_game.blit(exit_image, exitshop2_rect)
 
+            pygame.display.flip()
+            clock.tick(60)
+            continue
+
+        if gamba:
+            screen_game.blit(shopbackground_image, (0, 0))
+            screen_game.blit(up_arrow, THOUSANDup)
+            screen_game.blit(down_arrow, THOUSANDdown)
+            screen_game.blit(up_arrow, HUNDREDup)
+            screen_game.blit(down_arrow, HUNDREDdown)
+            screen_game.blit(up_arrow, TENup)
+            screen_game.blit(down_arrow, TENdown)
+            screen_game.blit(up_arrow, ONEup)
+            screen_game.blit(down_arrow, ONEdown)
+            screen_game.blit(exit_image, exitgamba_rect)
+            screen_game.blit(bet_image, bet_rect)
+
+
+            # Display the current bet value
+            Value_text = font.render(str(Value_Bet), True, "white")
+            screen_game.blit(Value_layer, (arrow_x - up_arrow.get_width() // 2, arrow_y + up_arrow.get_height() // 2))
+            screen_game.blit(Value_text, (arrow_x + up_arrow.get_width(), (arrow_y + up_arrow.get_height() // 2) + (25//2)))
+
+            # flip display
             pygame.display.flip()
             clock.tick(60)
             continue
 
         # Flip the display
         pygame.display.flip()
-
-
+        pygame.display.update()
         # Cap the frame rate
         clock.tick(60)
 
@@ -995,4 +1160,5 @@ def game():
 if __name__ == "__main__":
     game()
 
-# this is a test comment
+
+
