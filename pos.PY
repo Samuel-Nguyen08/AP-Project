@@ -145,7 +145,7 @@ Value_Bet = int(f"{thousand[0]}{hundred[0]}{ten[0]}{one[0]}")
 puzzle = False
 event_active = False
 
-bet_active = False
+
 betwon = False
 
 # Update Value_Bet
@@ -258,6 +258,7 @@ class Player(pygame.sprite.Sprite):
         self.potions = potions
         self.alive = True
         self.strength_buff_active = False
+        self.bet_active = False
         # LOAD IMAGE ======================================================================
         self.battle_image = image
         self.rect = image.get_rect()
@@ -381,7 +382,6 @@ class EL_RATON(pygame.sprite.Sprite):
     def __init__(self, x, y, image, ypos):
         super().__init__()
         self.image = image
-        self.image.transform.scale(self.image, (self.image.get_width() * 2, self.image.get_height() * 2))
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = rand.randint(1, 3)
         self.ypos = ypos + (50 * len([obj for obj in pygame.sprite.Group().sprites() if isinstance(obj, EL_RATON)]))
@@ -401,7 +401,7 @@ class EL_RATON(pygame.sprite.Sprite):
 
 player = None
 def game():
-    global puzzle, last_event, player, event_active
+    global puzzle, last_event, player, event_active, betwon
     # Game states
     keys = pygame.key.get_pressed()
     running = True
@@ -612,7 +612,7 @@ def game():
     down_arrow_one = pygame.image.load("img/down_arrow.png").convert_alpha()
     down_arrow_one = pygame.transform.scale(down_arrow_one, (50, 50))
     
-    bet_image = pygame.image.load("img/exit_button2.png").convert_alpha()
+    bet_image = pygame.image.load("img/bet_img.png").convert_alpha()
     bet_image = pygame.transform.scale(bet_image, (150, 75))
     
 
@@ -633,13 +633,14 @@ def game():
     Value_layer.fill("black")
     Value_text = font.render(str(Value_Bet), True, "white")
     
-    bet_rect = bet_image.get_rect(center=(arrow_x + (up_arrow_thousand.get_width()*4) + 50, arrow_y + 50))
+    bet_rect = bet_image.get_rect(center=(arrow_x + (up_arrow_thousand.get_width()*4) + 75, arrow_y + 50))
 
     exitgamba_rect = exit_image.get_rect(center=(screenwidth - (exit_image.get_width() // 2), 0 + (exit_image.get_height() // 2)))
 
     # raton racing
     ratsprite = pygame.sprite.Group()
-    rat = pygame.image.load("img/rat.png").convert_alpha()
+    rat = pygame.image.load("img/shop_keeper.png").convert_alpha()
+    rat = pygame.transform.scale(rat, (50, 50))
     for _ in range(5):
         raton = EL_RATON(0, 0, rat, 0)
         ratsprite.add(raton)
@@ -868,6 +869,12 @@ def game():
                 else:
                     exit_image = pygame.image.load("img/Exit_button.png").convert_alpha()
                     exit_image = pygame.transform.scale(exit_image, (64, 64))
+                if bet_rect.collidepoint(pygame.mouse.get_pos()):
+                    bet_image = pygame.image.load("img/bet_img2.png").convert_alpha()
+                    bet_image = pygame.transform.scale(bet_image, (150, 75))
+                else:
+                    bet_image = pygame.image.load("img/bet_img.png").convert_alpha()
+                    bet_image = pygame.transform.scale(bet_image, (150, 75))
 
                 if THOUSANDup.collidepoint(pygame.mouse.get_pos()):
                     up_arrow_thousand = pygame.image.load("img/up_arrow2.png").convert_alpha()
@@ -931,23 +938,33 @@ def game():
                         gamba = False
                         city = True
                     # add the value bet
+                    if bet_rect.collidepoint(event.pos):
+                        for jimmy in all_sprites:
+                            if jimmy.money >= Value_Bet:
+                                jimmy.money -= Value_Bet
+                                jimmy.bet_active = True
+                            else:
+                                print("Not enough money to bet!")
+
+
                     if THOUSANDup.collidepoint(event.pos):
                         cycle_numbers("thousand", "up")
-                    if THOUSANDdown.collidepoint(event.pos):
+                    elif THOUSANDdown.collidepoint(event.pos):
                         cycle_numbers("thousand", "down")
-                    if HUNDREDup.collidepoint(event.pos):
+                    elif HUNDREDup.collidepoint(event.pos):
                         cycle_numbers("hundred", "up")
-                    if HUNDREDdown.collidepoint(event.pos):
+                    elif HUNDREDdown.collidepoint(event.pos):
                         cycle_numbers("hundred", "down")
-                    if TENup.collidepoint(event.pos):
+                    elif TENup.collidepoint(event.pos):
                         cycle_numbers("ten", "up")
-                    if TENdown.collidepoint(event.pos):
+                    elif TENdown.collidepoint(event.pos):
                         cycle_numbers("ten", "down")
-                    if ONEup.collidepoint(event.pos):
+                    elif ONEup.collidepoint(event.pos):
                         cycle_numbers("one", "up")
-                    if ONEdown.collidepoint(event.pos):
+                    elif ONEdown.collidepoint(event.pos):
                         cycle_numbers("one", "down")
-
+                    else:
+                        pass
 
                             
         # Decrement the shop timer if it's active
@@ -1233,27 +1250,43 @@ def game():
 
         if gamba:
             screen_game.blit(shopbackground_image, (0, 0))
-            screen_game.blit(up_arrow_thousand, THOUSANDup)
-            screen_game.blit(down_arrow_thousand, THOUSANDdown)
-            screen_game.blit(up_arrow_hundred, HUNDREDup)
-            screen_game.blit(down_arrow_hundred, HUNDREDdown)
-            screen_game.blit(up_arrow_ten, TENup)
-            screen_game.blit(down_arrow_ten, TENdown)
-            screen_game.blit(up_arrow_one, ONEup)
-            screen_game.blit(down_arrow_one, ONEdown)
-            screen_game.blit(exit_image, exitgamba_rect)
-            screen_game.blit(bet_image, bet_rect)
+            for jimmy in all_sprites:
+                if jimmy.bet_active == False:
+                    
+                    screen_game.blit(up_arrow_thousand, THOUSANDup)
+                    screen_game.blit(down_arrow_thousand, THOUSANDdown)
+                    screen_game.blit(up_arrow_hundred, HUNDREDup)
+                    screen_game.blit(down_arrow_hundred, HUNDREDdown)
+                    screen_game.blit(up_arrow_ten, TENup)
+                    screen_game.blit(down_arrow_ten, TENdown)
+                    screen_game.blit(up_arrow_one, ONEup)
+                    screen_game.blit(down_arrow_one, ONEdown)
+                    screen_game.blit(exit_image, exitgamba_rect)
+                    screen_game.blit(bet_image, bet_rect)
 
-            # Display the current bet value
-            Value_text = font.render(str(Value_Bet), True, "white")
-            screen_game.blit(Value_layer, (arrow_x - up_arrow_thousand.get_width() // 2, arrow_y + up_arrow_thousand.get_height() // 2))
-            screen_game.blit(Value_text, (arrow_x + up_arrow_thousand.get_width(), (arrow_y + up_arrow_thousand.get_height() // 2) + (25//2)))
+                    # Display the current bet value
+                    Value_text = font.render(str(Value_Bet), True, "white")
+                    screen_game.blit(Value_layer, (arrow_x - up_arrow_thousand.get_width() // 2, arrow_y + up_arrow_thousand.get_height() // 2))
+                    screen_game.blit(Value_text, (arrow_x + up_arrow_thousand.get_width(), (arrow_y + up_arrow_thousand.get_height() // 2) + (25//2)))
+                    pygame.display.update()
+                    
+                elif jimmy.bet_active == True:
+                    # Display the current bet value
+                    Value_text = font.render(str(Value_Bet), True, "white")
+                    screen_game.blit(Value_layer, ((screenwidth // 2) - (up_arrow_thousand.get_width()*4) // 2, arrow_y + up_arrow_thousand.get_height() // 2))
+                    screen_game.blit(Value_text, ((screenwidth // 2) - (up_arrow_thousand.get_width()//2), (arrow_y + up_arrow_thousand.get_height() // 2)+ 25//2))
 
-            # flip display
-            pygame.display.flip()
-            clock.tick(60)
-            continue
+                    '''# Add logic to handle the betting result
+                    if betwon:  # Example: Check if the bet was won
+                        jimmy.money += Value_Bet * 2  # Double the bet amount as a reward
+                        jimmy.bet_active = False  # Reset the bet state
+                        betwon = False  # Reset the win state
+                    else:
+                        jimmy.bet_active = False  # Reset the bet state if lost'''
+                    pygame.display.update()
+                    
 
+            
         # Flip the display
         pygame.display.flip()
         pygame.display.update()
