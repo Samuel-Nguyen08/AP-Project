@@ -378,12 +378,15 @@ class Player(pygame.sprite.Sprite):
 
 
 class EL_RATON(pygame.sprite.Sprite):
-    def __init__(self, x, y, image):
+    def __init__(self, x, y, image, ypos):
         super().__init__()
         self.image = image
         self.image.transform.scale(self.image, (self.image.get_width() * 2, self.image.get_height() * 2))
         self.rect = self.image.get_rect(topleft=(x, y))
         self.speed = rand.randint(1, 3)
+        self.ypos = ypos + (50 * len([obj for obj in pygame.sprite.Group().sprites() if isinstance(obj, EL_RATON)]))
+        self.rect.y = self.ypos
+        self.rect.x = 50
 
 
     def update(self):
@@ -635,8 +638,11 @@ def game():
     exitgamba_rect = exit_image.get_rect(center=(screenwidth - (exit_image.get_width() // 2), 0 + (exit_image.get_height() // 2)))
 
     # raton racing
-
-
+    ratsprite = pygame.sprite.Group()
+    rat = pygame.image.load("img/rat.png").convert_alpha()
+    for _ in range(5):
+        raton = EL_RATON(0, 0, rat, 0)
+        ratsprite.add(raton)
 
 
 
