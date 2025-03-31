@@ -145,6 +145,9 @@ Value_Bet = int(f"{thousand[0]}{hundred[0]}{ten[0]}{one[0]}")
 puzzle = False
 event_active = False
 
+bet_active = False
+betwon = False
+
 # Update Value_Bet
 def update_value_bet():
     global Value_Bet
@@ -374,12 +377,24 @@ class Player(pygame.sprite.Sprite):
             screen_game.blit(self.image, self.rect)
 
 
-def updateprice():
-    global hpc, hpp, atk
-    hpc = hpc + ((inventory.count("HP_CRYSTAL")) * 25)
-    hpp = hpp + (inventory.count("HP_POTION") * 25)
-    atk = atk + (inventory.count("ATK_CRYSTAL") * 25)
+class EL_RATON(pygame.sprite.Sprite):
+    def __init__(self, x, y, image):
+        super().__init__()
+        self.image = image
+        self.image.transform.scale(self.image, (self.image.get_width() * 2, self.image.get_height() * 2))
+        self.rect = self.image.get_rect(topleft=(x, y))
+        self.speed = rand.randint(1, 3)
 
+
+    def update(self):
+        # Move the raton to the right randomly every few frames
+        if rand.randint(0, 100) < 5:  # Adjust the probability as needed
+            self.rect.x += self.speed
+        # Check if the raton is off the screen and reset its position
+        if self.rect.x > screenwidth:
+            self.rect.x = -self.rect.width
+
+        pass
 
 player = None
 def game():
@@ -443,6 +458,11 @@ def game():
             #show name and health
             draw_text(f'{i.name} HP: {i.hp}', font, "red", 800, (screenheight - bottompanel + 10) + count * 60)
 
+    def updateprice():
+        global hpc, hpp, atk
+        hpc = hpc + ((inventory.count("HP_CRYSTAL")) * 25)
+        hpp = hpp + (inventory.count("HP_POTION") * 25)
+        atk = atk + (inventory.count("ATK_CRYSTAL") * 25)
 
 
 
@@ -564,33 +584,59 @@ def game():
     gamba_image = pygame.transform.scale(gamba_image, (125, 125))
     gamba_rect = gamba_image.get_rect(center=(790, 500))
 
-    up_arrow = pygame.image.load("img/up_arrow.png").convert_alpha()
-    up_arrow = pygame.transform.scale(up_arrow, (50, 50))
-    down_arrow = pygame.image.load("img/down_arrow.png").convert_alpha()
-    down_arrow = pygame.transform.scale(down_arrow, (50, 50))
+    # Load and scale up and down arrows for each digit
+    up_arrow_thousand = pygame.image.load("img/up_arrow.png").convert_alpha()
+    up_arrow_thousand = pygame.transform.scale(up_arrow_thousand, (50, 50))
+
+    down_arrow_thousand = pygame.image.load("img/down_arrow.png").convert_alpha()
+    down_arrow_thousand = pygame.transform.scale(down_arrow_thousand, (50, 50))
+
+    up_arrow_hundred = pygame.image.load("img/up_arrow.png").convert_alpha()
+    up_arrow_hundred = pygame.transform.scale(up_arrow_hundred, (50, 50))
+
+    down_arrow_hundred = pygame.image.load("img/down_arrow.png").convert_alpha()
+    down_arrow_hundred = pygame.transform.scale(down_arrow_hundred, (50, 50))
+
+    up_arrow_ten = pygame.image.load("img/up_arrow.png").convert_alpha()
+    up_arrow_ten = pygame.transform.scale(up_arrow_ten, (50, 50))
+
+    down_arrow_ten = pygame.image.load("img/down_arrow.png").convert_alpha()
+    down_arrow_ten = pygame.transform.scale(down_arrow_ten, (50, 50))
+
+    up_arrow_one = pygame.image.load("img/up_arrow.png").convert_alpha()
+    up_arrow_one = pygame.transform.scale(up_arrow_one, (50, 50))
+
+    down_arrow_one = pygame.image.load("img/down_arrow.png").convert_alpha()
+    down_arrow_one = pygame.transform.scale(down_arrow_one, (50, 50))
     
-    arrow_x = 810
+    bet_image = pygame.image.load("img/exit_button2.png").convert_alpha()
+    bet_image = pygame.transform.scale(bet_image, (150, 75))
+    
+
+    arrow_x = ((screenwidth//2) - ((up_arrow_thousand.get_width() * 2) + bet_image.get_width() // 2))
     arrow_y = 500
 
-    THOUSANDup = up_arrow.get_rect(center=(arrow_x, arrow_y))
-    THOUSANDdown = down_arrow.get_rect(center=(arrow_x, arrow_y + 100))
-    HUNDREDup = up_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*1), arrow_y))
-    HUNDREDdown = down_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*1), arrow_y + 100))
-    TENup = up_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*2), arrow_y))
-    TENdown = down_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*2), arrow_y + 100))
-    ONEup = up_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*3), arrow_y))
-    ONEdown = down_arrow.get_rect(center=(arrow_x + (up_arrow.get_width()*3), arrow_y + 100))
+    THOUSANDup = up_arrow_thousand.get_rect(center=(arrow_x, arrow_y))
+    THOUSANDdown = down_arrow_thousand.get_rect(center=(arrow_x, arrow_y + 100))
+    HUNDREDup = up_arrow_hundred.get_rect(center=(arrow_x + (up_arrow_hundred.get_width()*1), arrow_y))
+    HUNDREDdown = down_arrow_hundred.get_rect(center=(arrow_x + (down_arrow_hundred.get_width()*1), arrow_y + 100))
+    TENup = up_arrow_ten.get_rect(center=(arrow_x + (up_arrow_ten.get_width()*2), arrow_y))
+    TENdown = down_arrow_ten.get_rect(center=(arrow_x + (down_arrow_ten.get_width()*2), arrow_y + 100))
+    ONEup = up_arrow_one.get_rect(center=(arrow_x + (up_arrow_one.get_width()*3), arrow_y))
+    ONEdown = down_arrow_one.get_rect(center=(arrow_x + (down_arrow_one.get_width()*3), arrow_y + 100))
 
-    Value_layer = pygame.Surface((up_arrow.get_width()*4, 50))
+    Value_layer = pygame.Surface((up_arrow_thousand.get_width()*4, 50))
     Value_layer.set_alpha(255)
     Value_layer.fill("black")
     Value_text = font.render(str(Value_Bet), True, "white")
-
-    bet_image = pygame.image.load("img/exit_button2.png").convert_alpha()
-    bet_image = pygame.transform.scale(bet_image, (150, 75))
-    bet_rect = bet_image.get_rect(center=(arrow_x + (up_arrow.get_width()*4) + 50, arrow_y + 50))
+    
+    bet_rect = bet_image.get_rect(center=(arrow_x + (up_arrow_thousand.get_width()*4) + 50, arrow_y + 50))
 
     exitgamba_rect = exit_image.get_rect(center=(screenwidth - (exit_image.get_width() // 2), 0 + (exit_image.get_height() // 2)))
+
+    # raton racing
+
+
 
 
 
@@ -816,7 +862,64 @@ def game():
                 else:
                     exit_image = pygame.image.load("img/Exit_button.png").convert_alpha()
                     exit_image = pygame.transform.scale(exit_image, (64, 64))
-                
+
+                if THOUSANDup.collidepoint(pygame.mouse.get_pos()):
+                    up_arrow_thousand = pygame.image.load("img/up_arrow2.png").convert_alpha()
+                    up_arrow_thousand = pygame.transform.scale(up_arrow_thousand, (50, 50))
+                else:
+                    up_arrow_thousand = pygame.image.load("img/up_arrow.png").convert_alpha()
+                    up_arrow_thousand = pygame.transform.scale(up_arrow_thousand, (50, 50))
+
+                if THOUSANDdown.collidepoint(pygame.mouse.get_pos()):
+                    down_arrow_thousand = pygame.image.load("img/down_arrow2.png").convert_alpha()
+                    down_arrow_thousand = pygame.transform.scale(down_arrow_thousand, (50, 50))
+                else:
+                    down_arrow_thousand = pygame.image.load("img/down_arrow.png").convert_alpha()
+                    down_arrow_thousand = pygame.transform.scale(down_arrow_thousand, (50, 50))
+
+                if HUNDREDup.collidepoint(pygame.mouse.get_pos()):
+                    up_arrow_hundred = pygame.image.load("img/up_arrow2.png").convert_alpha()
+                    up_arrow_hundred = pygame.transform.scale(up_arrow_hundred, (50, 50))
+                else:
+                    up_arrow_hundred = pygame.image.load("img/up_arrow.png").convert_alpha()
+                    up_arrow_hundred = pygame.transform.scale(up_arrow_hundred, (50, 50))
+
+                if HUNDREDdown.collidepoint(pygame.mouse.get_pos()):
+                    down_arrow_hundred = pygame.image.load("img/down_arrow2.png").convert_alpha()
+                    down_arrow_hundred = pygame.transform.scale(down_arrow_hundred, (50, 50))
+                else:
+                    down_arrow_hundred = pygame.image.load("img/down_arrow.png").convert_alpha()
+                    down_arrow_hundred = pygame.transform.scale(down_arrow_hundred, (50, 50))
+
+                if TENup.collidepoint(pygame.mouse.get_pos()):
+                    up_arrow_ten = pygame.image.load("img/up_arrow2.png").convert_alpha()
+                    up_arrow_ten = pygame.transform.scale(up_arrow_ten, (50, 50))
+                else:
+                    up_arrow_ten = pygame.image.load("img/up_arrow.png").convert_alpha()
+                    up_arrow_ten = pygame.transform.scale(up_arrow_ten, (50, 50))
+
+                if TENdown.collidepoint(pygame.mouse.get_pos()):
+                    down_arrow_ten = pygame.image.load("img/down_arrow2.png").convert_alpha()
+                    down_arrow_ten = pygame.transform.scale(down_arrow_ten, (50, 50))
+                else:
+                    down_arrow_ten = pygame.image.load("img/down_arrow.png").convert_alpha()
+                    down_arrow_ten = pygame.transform.scale(down_arrow_ten, (50, 50))
+
+                if ONEup.collidepoint(pygame.mouse.get_pos()):
+                    up_arrow_one = pygame.image.load("img/up_arrow2.png").convert_alpha()
+                    up_arrow_one = pygame.transform.scale(up_arrow_one, (50, 50))
+                else:
+                    up_arrow_one = pygame.image.load("img/up_arrow.png").convert_alpha()
+                    up_arrow_one = pygame.transform.scale(up_arrow_one, (50, 50))
+
+                if ONEdown.collidepoint(pygame.mouse.get_pos()):
+                    down_arrow_one = pygame.image.load("img/down_arrow2.png").convert_alpha()
+                    down_arrow_one = pygame.transform.scale(down_arrow_one, (50, 50))
+                else:
+                    down_arrow_one = pygame.image.load("img/down_arrow.png").convert_alpha()
+                    down_arrow_one = pygame.transform.scale(down_arrow_one, (50, 50))
+
+
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if exitgamba_rect.collidepoint(event.pos):
                         gamba = False
@@ -1124,22 +1227,21 @@ def game():
 
         if gamba:
             screen_game.blit(shopbackground_image, (0, 0))
-            screen_game.blit(up_arrow, THOUSANDup)
-            screen_game.blit(down_arrow, THOUSANDdown)
-            screen_game.blit(up_arrow, HUNDREDup)
-            screen_game.blit(down_arrow, HUNDREDdown)
-            screen_game.blit(up_arrow, TENup)
-            screen_game.blit(down_arrow, TENdown)
-            screen_game.blit(up_arrow, ONEup)
-            screen_game.blit(down_arrow, ONEdown)
+            screen_game.blit(up_arrow_thousand, THOUSANDup)
+            screen_game.blit(down_arrow_thousand, THOUSANDdown)
+            screen_game.blit(up_arrow_hundred, HUNDREDup)
+            screen_game.blit(down_arrow_hundred, HUNDREDdown)
+            screen_game.blit(up_arrow_ten, TENup)
+            screen_game.blit(down_arrow_ten, TENdown)
+            screen_game.blit(up_arrow_one, ONEup)
+            screen_game.blit(down_arrow_one, ONEdown)
             screen_game.blit(exit_image, exitgamba_rect)
             screen_game.blit(bet_image, bet_rect)
 
-
             # Display the current bet value
             Value_text = font.render(str(Value_Bet), True, "white")
-            screen_game.blit(Value_layer, (arrow_x - up_arrow.get_width() // 2, arrow_y + up_arrow.get_height() // 2))
-            screen_game.blit(Value_text, (arrow_x + up_arrow.get_width(), (arrow_y + up_arrow.get_height() // 2) + (25//2)))
+            screen_game.blit(Value_layer, (arrow_x - up_arrow_thousand.get_width() // 2, arrow_y + up_arrow_thousand.get_height() // 2))
+            screen_game.blit(Value_text, (arrow_x + up_arrow_thousand.get_width(), (arrow_y + up_arrow_thousand.get_height() // 2) + (25//2)))
 
             # flip display
             pygame.display.flip()
